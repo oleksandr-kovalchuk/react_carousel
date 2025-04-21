@@ -1,26 +1,95 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Carousel.scss';
 
-const Carousel: React.FC = () => (
-  <div className="Carousel">
-    <ul className="Carousel__list">
-      <li>
-        <img src="./img/1.png" alt="1" />
-      </li>
-      <li>
-        <img src="./img/1.png" alt="2" />
-      </li>
-      <li>
-        <img src="./img/1.png" alt="3" />
-      </li>
-      <li>
-        <img src="./img/1.png" alt="4" />
-      </li>
-    </ul>
+interface CarouselProps {
+  images: string[];
+  itemWidth: number;
+  frameSize: number;
+  step: number;
+  animationDuration: number;
+  infinite: boolean;
+}
 
-    <button type="button">Prev</button>
-    <button type="button">Next</button>
-  </div>
-);
+const Carousel: React.FC<CarouselProps> = ({
+  images,
+  itemWidth,
+  frameSize,
+  step,
+  animationDuration,
+  infinite,
+}) => {
+  const [position, setPosition] = useState(0);
+
+  const maxBack = 0;
+  const maxForward = -(images.length - frameSize);
+  const isAtStart = position === maxBack;
+  const isAtEnd = position === maxForward;
+
+  const handlePrevClick = () => {
+    if (infinite && isAtStart) {
+      setPosition(maxForward);
+    }
+
+    if (!isAtStart) {
+      setPosition(Math.min(position + step, maxBack));
+    }
+  };
+
+  const handleNextClick = () => {
+    if (infinite && isAtEnd) {
+      setPosition(maxBack);
+    }
+
+    if (!isAtEnd) {
+      setPosition(Math.max(position - step, maxForward));
+    }
+  };
+
+  return (
+    <div className="Carousel" style={{ width: `${itemWidth * frameSize}px` }}>
+      <ul className="Carousel__list">
+        {images.map((image, index) => (
+          <li
+            key={`carousel-item-${index}`}
+            style={{
+              transform: `translateX(${position * itemWidth}px)`,
+              transition: `transform ${animationDuration}ms`,
+            }}
+          >
+            <img
+              className="Carousel__image"
+              src={image}
+              alt={`Carousel image ${index + 1}`}
+              width={itemWidth}
+            />
+          </li>
+        ))}
+      </ul>
+
+      <div className="Carousel__buttons">
+        <button
+          className="Carousel__button"
+          type="button"
+          onClick={handlePrevClick}
+          disabled={!infinite && isAtStart}
+          aria-label="Previous images"
+        >
+          Prev
+        </button>
+
+        <button
+          className="Carousel__button"
+          type="button"
+          data-cy="next"
+          onClick={handleNextClick}
+          disabled={!infinite && isAtEnd}
+          aria-label="Next images"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export default Carousel;
