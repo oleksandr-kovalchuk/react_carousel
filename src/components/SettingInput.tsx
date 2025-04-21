@@ -28,7 +28,9 @@ const SettingInput: React.FC<SettingInputProps> = ({
       id={id}
       type={type}
       name={name}
-      value={value.toString()}
+      {...(type === 'checkbox'
+        ? { checked: Boolean(value) }
+        : { value: value.toString() })}
       min={min}
       max={max}
       step={step}
